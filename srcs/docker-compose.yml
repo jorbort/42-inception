@@ -1,0 +1,79 @@
+version: '3.8'
+services:
+
+  nginx:
+    depends_on:
+      -wordpress
+    container_name: nginx
+    build:
+      context: requierements/nginx/
+    image: nginx
+    volumes:
+      - wp_content:/var/www/html/wordpress
+    networks: jbortolo_network
+    ports:
+      -443:443
+    restart: always
+
+
+  wordpress:
+    depends_on:
+      - mariadb
+    container_name: wordpress
+    build:
+      context: requierements/wordpress/
+    image: wordpress
+    volumes:
+      - wp_content:/var/www/html
+    networks: jbortolo_network
+    environment:
+      - DB_HOST
+      - DB_NAME
+      - DB_USER
+      - DB_PASS
+      - WP_TITLE
+      - WP_URL
+      - WP_ADMIN_USER
+      - WP_ADMIN_EMAIL
+      - WP_ADMIN_PASS
+      - WP_USER
+      - WP_PASS
+      - WP_EMAIL
+    restart: always
+
+
+
+  mariadb:
+    container_name: mariadb
+    build:
+      context: requierements/mariadb/
+      args:
+        - DB_NAME
+        - DB_USER
+        - DB_PASS
+    image: mariadb
+    volumes:
+      - wp_db:/var/lib/mysql
+    networks: jbortolo_network
+    restart: always
+
+
+
+volumes:
+  wp_content:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/jbortolo/data/wp_content
+      o: bind
+  wp_db:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/jbortolo/data/wp_db
+      o: bind
+
+networks:
+  jbortolo_network:
+    driver: bridge
+    name: jbortolo_network
