@@ -1,4 +1,4 @@
-FILE=-f Src/docker-compose.yml
+FILE=-f srcs/docker-compose.yml
 ENV_FILE=--env-file srcs/.env
 
 all: build up

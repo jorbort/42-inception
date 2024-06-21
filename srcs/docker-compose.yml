@@ -1,18 +1,19 @@
-version: '3.8'
+
 services:
 
   nginx:
     depends_on:
-      -wordpress
+      - wordpress
     container_name: nginx
     build:
       context: requierements/nginx/
     image: nginx
     volumes:
       - wp_content:/var/www/html/wordpress
-    networks: jbortolo_network
+    networks:
+      - jbortolo_network
     ports:
-      -443:443
+      - "443:443"
     restart: always
 
 
@@ -25,7 +26,8 @@ services:
     image: wordpress
     volumes:
       - wp_content:/var/www/html
-    networks: jbortolo_network
+    networks:
+      - jbortolo_network
     environment:
       - DB_HOST
       - DB_NAME
@@ -46,7 +48,7 @@ services:
   mariadb:
     container_name: mariadb
     build:
-      context: requierements/mariadb/
+      context: requierements/mariaDb/
       args:
         - DB_NAME
         - DB_USER
@@ -54,7 +56,8 @@ services:
     image: mariadb
     volumes:
       - wp_db:/var/lib/mysql
-    networks: jbortolo_network
+    networks:
+      - jbortolo_network
     restart: always
 
 
