@@ -1,25 +1,29 @@
-FILE=-f srcs/docker-compose.yml
-ENV_FILE=--env-file srcs/.env
+FILE = srcs/docker-compose.yml
 
-all: build up
-
-up:
-	docker compose ${ENV_FILE} ${FILE} up -d
+all:
+	mkdir -p /home/$(USER)/data/wordpress
+	mkdir -p /home/$(USER)/data/mariadb
+	docker compose -f $(FILE) up --detach --build
 
 down:
-	docker compose ${ENV_FILE} ${FILE} down
-
-build:
-	mkdir -p ~/data/wp_content
-	mkdir -p ~/data/wp_db
-	docker compose ${ENV_FILE} ${FILE} build
-
-clean: down
-	docker system prune -af
-	docker volume prune -af
-	- docker volume rm `docker volume ls -q`
-	sudo rm -rf ~/data
+	docker compose -f $(FILE) down
+clean:
+	@if [ ! -z "$$(docker ps -aq)" ]; then \
+		docker stop $$(docker ps -aq); \
+		docker rm $$(docker ps -aq); \
+	fi
+	@if [ ! -z "$$(docker images -aq)" ]; then \
+		docker rmi $$(docker images -aq); \
+	fi	
+	@if [ ! -z "$$(docker volume ls -q)" ]; then \
+		docker volume rm $$(docker volume ls -q); \
+	fi
+	@if [ ! -z "$$(docker network ls -q --filter type=custom)" ]; then \
+		docker network rm $$(docker network ls -q --filter type=custom); \
+	fi
+	sudo rm -rf /home/$(USER)/data/wordpress
+	sudo rm -rf /home/$(USER)/data/mariadb
 
 re: clean all
 
-.PHONY: all up down build clean re
+.PHONY: all down clean
